@@ -19,5 +19,6 @@ from persons import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/persons/', views.persons, name='persons')
+    path('api/persons/', views.persons, name='persons'),
+    path('api/persons/<int:id>', views.person, name='person')
 ]

@@ -1,8 +1,44 @@
-from  persons.models import Person
+from persons.models import Person
 from django.http import JsonResponse
 from persons.serializers import CustomerSerializer
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
+
+@api_view(['GET','POST'])
 def persons(request):
-    data = Person.objects.all()
-    serializer = CustomerSerializer(data, many=True)
-    return JsonResponse({'person': serializer.data})
+    if request.method == 'GET':
+        data = Person.objects.all()
+        serializer = CustomerSerializer(data, many=True)
+        return Response({'person': serializer.data}, status=status.HTTP_200_OK)
+    
+    elif request.method == 'POST':
+        serializer = CustomerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'person': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET','POST','DELETE'])
+def person(request, id):
+    try:
+        data = Person.objects.get(pk=id)
+    except Person.DoesNotExist:
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method == 'GET':
+        serializer = CustomerSerializer(data)
+        return Response({'person': serializer.data}, status=status.HTTP_200_OK)
+    
+    elif request.method == 'POST':
+        serializer = CustomerSerializer(data, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'person': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        data.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
