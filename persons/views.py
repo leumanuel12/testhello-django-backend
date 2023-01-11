@@ -1,12 +1,14 @@
 from persons.models import Person
 from django.http import JsonResponse
 from persons.serializers import CustomerSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def persons(request):
     if request.method == 'GET':
         data = Person.objects.all()
@@ -22,6 +24,7 @@ def persons(request):
 
 
 @api_view(['GET','POST','DELETE'])
+@permission_classes([IsAuthenticated])
 def person(request, id):
     try:
         data = Person.objects.get(pk=id)
